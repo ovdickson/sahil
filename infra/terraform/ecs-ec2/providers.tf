@@ -1,7 +1,7 @@
 provider "aws" {
-  region  = var.region
+  region  = "{{REGION}}"
   assume_role {
-    role_arn = "arn:aws:iam::${var.account_id}:role/${var.role_name}"
+    role_arn = "arn:aws:iam::{{ACCOUNT_ID}}:role/${var.role_name}"
   }
 }
 
@@ -15,7 +15,7 @@ terraform {
 
     bucket         = "sahil-terraform-state-bucket"
     dynamodb_table = "sahil-terraform-table-locks"        
-    region         = "eu-west-1"
+    region         = "{{REGION}}"
     key            = "sahil-ecs-infra/{{ENV}}/terraform.tfstate"
   }
 }
@@ -26,6 +26,6 @@ data "terraform_remote_state" "infra" {
   config = {
     bucket = "sahil-terraform-state-bucket"
     key    = "sahil-vpc-infra/{{ENV}}/terraform.tfstate"
-    region = "eu-west-1"
+    region = "{{REGION}}"
   }
 }

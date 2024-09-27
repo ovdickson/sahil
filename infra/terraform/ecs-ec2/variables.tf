@@ -1,6 +1,4 @@
-variable "region" {
-  default = "eu-west-1"
-}
+variable "region" {}
 
 variable "account_id" {}
 

@@ -1,0 +1,110 @@
+name: "deploy_to_environments"
+on:
+  push:
+    branches:
+    - migrate-to-aws
+
+    workflow_call:
+      inputs: 
+        environment:
+          description: "Name of the environment to deploy"
+          required: true
+          type: string
+
+permissions:
+    id-token: write
+    contents: read
+
+jobs:
+    plan:
+        runs-on: ubuntu-latest
+        environment: ${{ inputs.environment }}
+        defaults:
+            run:
+                shell: bash
+                working-directory: infra/terraform/ecs-ec2
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3 # v3 available
+          with:
+            terraform_version: 1.7.5 # 1.82 (latest) available
+        
+        - name: configure aws credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.ROLE_NAME }}
+            role-session-name: github_action_session
+            aws-region: ${{ vars.REGION }}
+
+        - name: Get OIDC Token
+          id: get_oidc_token
+          run: |
+            curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value' > /tmp/web_identity_token_file
+
+        - name: Terraform Init 
+          id: init
+          run: |
+            sed -i -e "s/{{ENV}}/${{ vars.ENV }}/" providers.tf  
+            sed -i -e "s/{{REGION}}/${{ vars.REGION }}/" providers.tf 
+            sed -i -e "s/{{ACCOUNT_ID}}/${{ vars.ACCOUNT_ID }}/" providers.tf
+            terraform init -reconfigure  -no-color
+            # terraform force-unlock -force 1f0bd248-d99d-a23f-6669-47e57dcedd87
+
+        - name: Terraform Plan
+          id: plan
+          run: |
+            terraform plan 
+          continue-on-error: true
+  
+        - name: Terraform Plan Status
+          if: steps.plan.outcome == 'failure'
+          run: exit 1
+
+    apply:
+        runs-on: ubuntu-latest
+        needs: plan
+        environment: ${{ inputs.environment }}
+        defaults:
+            run:
+                shell: bash
+                working-directory: infra/terraform/ecs-ec2
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3
+          with:
+            terraform_version: 1.7.5
+        
+        - name: configure aws credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.ROLE_NAME }}
+            role-session-name: github_action_session
+            aws-region: ${{ vars.REGION }}
+
+        - name: Get OIDC Token
+          id: get_oidc_token
+          run: |
+            curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value' > /tmp/web_identity_token_file
+
+        - name: Terraform Init
+          id: init
+          run: |
+            sed -i -e "s/{{ENV}}/${{ vars.ENV }}/" providers.tf
+            sed -i -e "s/{{REGION}}/${{ vars.REGION }}/" providers.tf
+            terraform init -reconfigure  -no-color
+
+        - name: Terraform apply
+          id: apply
+          run: |
+            terraform apply -auto-approve -var-file="config/${{ vars.ENV }}.tfvars"
+          continue-on-error: true
+
+        - name: Terraform apply Status
+          if: steps.apply.outcome == 'failure'
+          run: exit 1
