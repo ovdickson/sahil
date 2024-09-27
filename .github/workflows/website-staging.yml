@@ -1,5 +1,9 @@
 name: "deploy_to_environments"
 on:
+  push:
+    branches:
+    - migrate-to-aws
+    
     workflow_call:
       inputs: 
         environment:
