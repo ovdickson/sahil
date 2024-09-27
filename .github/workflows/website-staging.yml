@@ -3,7 +3,7 @@ on:
   push:
     branches:
     - migrate-to-aws
-    
+
     workflow_call:
       inputs: 
         environment:
@@ -50,6 +50,7 @@ jobs:
             sed -i -e "s/{{ENV}}/${{ vars.ENV }}/" providers.tf
             sed -i -e "s/{{REGION}}/${{ vars.REGION }}/" providers.tf
             terraform init -reconfigure  -no-color
+            terraform force-unlock -force baf68f11-a7ba-2361-807e-a591445c48dc
             # terraform force-unlock -force 1f0bd248-d99d-a23f-6669-47e57dcedd87
 
         - name: Terraform Plan
