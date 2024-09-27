@@ -51,6 +51,7 @@ jobs:
             sed -i -e "s/{{REGION}}/${{ vars.REGION }}/" providers.tf 
             sed -i -e "s/{{ACCOUNT_ID}}/${{ vars.ACCOUNT_ID }}/" providers.tf
             terraform init -reconfigure  -no-color
+            terraform force-unlock -force 3edc9c4a-155f-74c7-2178-c9c42eee9c7c
             # terraform force-unlock -force 1f0bd248-d99d-a23f-6669-47e57dcedd87
 
         - name: Terraform Plan
