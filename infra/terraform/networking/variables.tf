@@ -1,7 +1,5 @@
 variable "region" {}
 
-variable "profile" {}
-
 variable "account_id" {}
 
 variable "role_name" {
