@@ -52,7 +52,7 @@ jobs:
             sed -i -e "s/{{ACCOUNT_ID}}/${{ vars.ACCOUNT_ID }}/" providers.tf
             sed -i -e "s/{{ROLE_NAME}}/${{ vars.ROLE_NAME }}/" providers.tf
             terraform init -reconfigure  -no-color
-            terraform force-unlock -force fa19b86d-637d-defe-0b35-1c6cc199d490
+            #terraform force-unlock -force fa19b86d-637d-defe-0b35-1c6cc199d490
             # terraform force-unlock -force 1f0bd248-d99d-a23f-6669-47e57dcedd87
 
         - name: Terraform Plan
@@ -106,7 +106,7 @@ jobs:
         - name: Terraform apply
           id: apply
           run: |
-            terraform apply -auto-approve -var-file="config/${{ vars.ENV }}.tfvars"
+            terraform apply -auto-approve
           continue-on-error: true
 
         - name: Terraform apply Status
