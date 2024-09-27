@@ -1,5 +1,5 @@
 name: "deploy_to_environments"
-
+on:
     workflow_call:
       inputs: 
         environment:
