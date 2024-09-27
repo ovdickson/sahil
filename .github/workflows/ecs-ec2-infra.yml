@@ -1,4 +1,4 @@
-name: "deploy_to_environments"
+name: "deploy_ecs_to_environments"
 on:
   push:
     branches:
@@ -50,8 +50,9 @@ jobs:
             sed -i -e "s/{{ENV}}/${{ vars.ENV }}/" providers.tf  
             sed -i -e "s/{{REGION}}/${{ vars.REGION }}/" providers.tf 
             sed -i -e "s/{{ACCOUNT_ID}}/${{ vars.ACCOUNT_ID }}/" providers.tf
+            sed -i -e "s/{{ROLE_NAME}}/${{ vars.ROLE_NAME }}/" providers.tf
             terraform init -reconfigure  -no-color
-            terraform force-unlock -force 3edc9c4a-155f-74c7-2178-c9c42eee9c7c
+            # terraform force-unlock -force 3edc9c4a-155f-74c7-2178-c9c42eee9c7c
             # terraform force-unlock -force 1f0bd248-d99d-a23f-6669-47e57dcedd87
 
         - name: Terraform Plan
@@ -96,9 +97,10 @@ jobs:
         - name: Terraform Init
           id: init
           run: |
-            sed -i -e "s/{{ENV}}/${{ vars.ENV }}/" providers.tf
+            sed -i -e "s/{{ENV}}/${{ vars.ENV }}/" providers.tf  
             sed -i -e "s/{{REGION}}/${{ vars.REGION }}/" providers.tf
             sed -i -e "s/{{ACCOUNT_ID}}/${{ vars.ACCOUNT_ID }}/" providers.tf
+            sed -i -e "s/{{ROLE_NAME}}/${{ vars.ROLE_NAME }}/" providers.tf
             terraform init -reconfigure  -no-color
 
         - name: Terraform apply

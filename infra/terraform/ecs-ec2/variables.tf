@@ -3,7 +3,7 @@ variable "region" {}
 variable "account_id" {}
 
 variable "role_name" {
-  default = "sahil-deployment-role"
+  
 }
 
 # variable "devops_account_id" {

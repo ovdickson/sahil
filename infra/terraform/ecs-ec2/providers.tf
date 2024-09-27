@@ -1,7 +1,7 @@
 provider "aws" {
   region  = "{{REGION}}"
   assume_role {
-    role_arn = "arn:aws:iam::{{ACCOUNT_ID}}:role/${var.role_name}"
+    role_arn = "arn:aws:iam::{{ACCOUNT_ID}}:role/${{ROLE_NAME}}"
   }
 }
 
