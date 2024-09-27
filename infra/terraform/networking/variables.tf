@@ -1,26 +1,39 @@
-variable "project_id" {
-  description = "The ID of the GCP project "
-  default = ""
+variable "region" {}
+
+variable "profile" {}
+
+variable "account_id" {}
+
+variable "role_name" {
+  default = "sahil-deployment-role"
 }
 
-variable "project_number" {
-  description = "The unique project number"
-  default = ""
+variable "devops_account_id" {
+  default = "" 
 }
 
-variable "prod_region" {
-  description = "The region to deploy the resources"
-  default = "us-west1"
+variable "cust_name" {
+  default = "sahil"
+}
+variable "env" {
+
+}
+variable "project" {
+  default = "sahil"
+}
+variable "repository" {
+  default = "sahil-vpc-infra"
+}
+variable "owner" {
+  default = "sahil"
 }
 
-variable "dev_region" {
-  description = "The region to deploy the resources"
-  default = "us-central1"
-}
+# variable "alb_arn" {}
 
-variable "service_account" {
-  description = "The email address of the service account"
-  default = ""
-}
+variable "vpc_cidr" {}
 
+variable "public_cidrs" {}
 
+variable "app_priv_cidrs" {}
+
+variable "db_priv_cidrs" {}

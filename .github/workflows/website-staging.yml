@@ -1,72 +1,104 @@
-name: Website Stagging to Cloud Run
-
+name: "deploy_to_environments"
 on:
-  push:
-    branches:
-    - develop
 
-env:
-  REGION: "us-east1"
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
-  GCP_PROJECT_NUMBER: ${{ secrets.GCP_PROJECT_NUMBER }}
+    workflow_call:
+      inputs: 
+        environment:
+          description: "Name of the environment to deploy"
+          required: true
+          type: string
+
+permissions:
+    id-token: write
+    contents: read
 
 jobs:
-  build:
-    name: Build the app
-    runs-on: ubuntu-latest
+    plan:
+        runs-on: ubuntu-latest
+        environment: ${{ inputs.environment }}
+        defaults:
+            run:
+                shell: bash
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v4
 
-    steps:
-    - name: Clone
-      uses: actions/checkout@v3
-    - run: echo "IMAGE=gcr.io/${{ env.GCP_PROJECT_ID }}/sahil-web-dev:$GITHUB_SHA" >> $GITHUB_ENV
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3 # v3 available
+          with:
+            terraform_version: 1.7.5 # 1.82 (latest) available
+        
+        - name: configure aws credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.ROLE_NAME }}
+            role-session-name: github_action_session
+            aws-region: ${{ vars.REGION }}
 
-    - name: Authenticate the service account
-      uses: google-github-actions/auth@v1
-      with:
-        credentials_json: '${{ env.GCP_SA_KEY }}'
+        - name: Get OIDC Token
+          id: get_oidc_token
+          run: |
+            curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value' > /tmp/web_identity_token_file
 
-    - name: Install gcloud on the job runner
-      uses: google-github-actions/setup-gcloud@v1
-      with:
-        service_account_key: '${{ env.GCP_SA_KEY }}'
-        project_id: '${{ env.GCP_PROJECT_ID }}'
-        export_default_credentials: true
+        - name: Terraform Init
+          id: init
+          run: |
+            sed -i -e "s/{{ENV}}/${{ vars.ENV }}/" providers.tf
+            sed -i -e "s/{{REGION}}/${{ vars.REGION }}/" providers.tf
+            terraform init -reconfigure  -no-color
+            # terraform force-unlock -force 1f0bd248-d99d-a23f-6669-47e57dcedd87
 
-    - name: Authorize admin account to push docker image
-      run: gcloud auth configure-docker
+        - name: Terraform Plan
+          id: plan
+          run: |
+            terraform plan -var-file="config/${{ vars.ENV }}.tfvars"
+          continue-on-error: true
+  
+        - name: Terraform Plan Status
+          if: steps.plan.outcome == 'failure'
+          run: exit 1
 
-    - name: Use gcloud CLI
-      run: 'gcloud info'
+    apply:
+        runs-on: ubuntu-latest
+        needs: plan
+        environment: ${{ inputs.environment }}
+        defaults:
+            run:
+                shell: bash
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v4
 
-    - name: Build a docker image
-      run: |-
-        docker build -f infra/docker/Dockerfile.website -t ${{ env.IMAGE }} .
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v3
+          with:
+            terraform_version: 1.7.5
+        
+        - name: configure aws credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.ROLE_NAME }}
+            role-session-name: github_action_session
+            aws-region: ${{ vars.REGION }}
 
-    - name: Push image to gcr.io
-      run: docker push ${{ env.IMAGE }}
+        - name: Get OIDC Token
+          id: get_oidc_token
+          run: |
+            curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value' > /tmp/web_identity_token_file
 
-  stagging:
-    needs: build
-    name: Deploy to stagging env
-    runs-on: ubuntu-latest
+        - name: Terraform Init
+          id: init
+          run: |
+            sed -i -e "s/{{ENV}}/${{ vars.ENV }}/" providers.tf
+            sed -i -e "s/{{REGION}}/${{ vars.REGION }}/" providers.tf
+            terraform init -reconfigure  -no-color
 
-    steps:
-    - name: Clone
-      uses: actions/checkout@v3
-      
-    - name: Terraform Plan and Apply
-      working-directory: infra/terraform/cloudrun
-      run: |
-        terraform init
-        terraform plan \
-          -out=tfplan \
-          -var="project_id=${{ env.GCP_PROJECT_ID }}" \
-          -var="project_number=${{env.GCP_PROJECT_NUMBER}}" \
-          -var="service_account=${{env.GCP_PROJECT_NUMBER}}-compute@developer.gserviceaccount.com" \
-          -var="region=${{ env.REGION }}" \
-          -var="service_name=sahil-website-development" \
-          -var="image_url=${{ env.IMAGE }}" \
-          -var="concurrency=80" \
-          -var="timeout=300" \
-        terraform apply tfplan
+        - name: Terraform apply
+          id: apply
+          run: |
+            terraform apply -auto-approve -var-file="config/${{ vars.ENV }}.tfvars"
+          continue-on-error: true
+
+        - name: Terraform apply Status
+          if: steps.apply.outcome == 'failure'
+          run: exit 1
