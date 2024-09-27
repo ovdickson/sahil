@@ -97,6 +97,7 @@ jobs:
           run: |
             sed -i -e "s/{{ENV}}/${{ vars.ENV }}/" providers.tf
             sed -i -e "s/{{REGION}}/${{ vars.REGION }}/" providers.tf
+            sed -i -e "s/{{ACCOUNT_ID}}/${{ vars.ACCOUNT_ID }}/" providers.tf
             terraform init -reconfigure  -no-color
 
         - name: Terraform apply
