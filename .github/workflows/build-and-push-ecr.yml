@@ -55,7 +55,7 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         # Find all Dockerfiles in the /infra/docker directory
-        dockerfiles=$(find ./docker -name "Dockerfile.*")
+        dockerfiles=$(find /infra/docker -name "Dockerfile.*")
         
         # Loop through each Dockerfile and build/push the image
         for dockerfile in $dockerfiles; do
