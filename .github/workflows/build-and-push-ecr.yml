@@ -28,9 +28,9 @@ jobs:
         aws-region: ${{ vars.REGION }}
 
     - name: Get OIDC Token
-          id: get_oidc_token
-          run: |
-            curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value' > /tmp/web_identity_token_file
+      id: get_oidc_token
+      run: |
+        curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r '.value' > /tmp/web_identity_token_file
 
     - name: Login to Amazon ECR
       id: login-ecr
