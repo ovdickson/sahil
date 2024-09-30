@@ -2,7 +2,7 @@ name: Test on Pull Request & Push
 
 on:
   push:
-    branches: ['main', 'develop']
+    branches: ['main', 'migrate-to-aws']
   pull_request:
     types: [opened, synchronize]
 

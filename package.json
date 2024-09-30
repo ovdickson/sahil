@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build-website": "turbo prune website && turbo run build --filter=website --api='https://cache-server.sahil.app' --team='team_sahil' --token='sAhILBiLLionDoLLarToK3n'",
+    "build-website": "turbo run build --filter=website --api='https://cache-server.sahil.app' --team='team_sahil' --token='sAhILBiLLionDoLLarToK3n'",
     "dev-website": "turbo run dev --filter=website",
     "build-api": "turbo run build --filter=api --api='https://cache-server.sahil.app' --team='team_sahil' --token='sAhILBiLLionDoLLarToK3n'",
     "dev-api": "turbo run dev --filter=api",
@@ -29,7 +29,7 @@
     "husky": "^8.0.3",
     "prettier": "^2.5.1",
     "ts-node": "^10.9.2",
-    "turbo": "1.10.16",
+    "turbo": "latest",
     "typescript": "^5.3.3",
     "yarn": "^1.22.21"
   },

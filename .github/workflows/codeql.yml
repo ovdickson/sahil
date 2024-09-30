@@ -13,7 +13,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "migrate-to-aws" ]
   pull_request:
     branches: [ "develop" ]
   schedule:
