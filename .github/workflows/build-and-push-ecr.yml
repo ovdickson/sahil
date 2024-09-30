@@ -4,12 +4,19 @@ on:
   push:
     branches: [ migrate-to-aws ]
 
+    workflow_call:
+      inputs: 
+        environment:
+          description: "Name of the environment to deploy"
+          required: true
+          type: string
+
 permissions:
     id-token: write
     contents: read
 
 env:
-  ECR_REGISTRY: 060795911441-id.dkr.ecr.eu-west-1.amazonaws.com  # Replace with your ECR registry
+  ECR_REGISTRY: 060795911441.dkr.ecr.eu-west-1.amazonaws.com  # Replace with your ECR registry
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
