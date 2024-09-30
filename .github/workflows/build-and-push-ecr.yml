@@ -47,8 +47,8 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        # Build and push sahil-website-test
-        docker build -t $ECR_REGISTRY/sahil-website-test:$IMAGE_TAG -f ./infra/docker/Dockerfile.website .
+        # Build and push sahil-website
+        docker build -t $ECR_REGISTRY/sahil-website:$IMAGE_TAG -f ./infra/docker/Dockerfile.website .
         docker push $ECR_REGISTRY/sahil-website-test:$IMAGE_TAG
 
         # Build and push sahil-api
@@ -62,5 +62,13 @@ jobs:
         # Build and push sahil-client
         docker build -t $ECR_REGISTRY/sahil-client:$IMAGE_TAG -f ./infra/docker/Dockerfile.client .
         docker push $ECR_REGISTRY/sahil-client:$IMAGE_TAG
+
+        # Build and push sahil-pay
+        docker build -t $ECR_REGISTRY/sahil-pay:$IMAGE_TAG -f ./infra/docker/Dockerfile.pay .
+        docker push $ECR_REGISTRY/sahil-pay:$IMAGE_TAG
+
+        # Build and push sahil-maps
+        docker build -t $ECR_REGISTRY/sahil-maps:$IMAGE_TAG -f ./infra/docker/Dockerfile.maps .
+        docker push $ECR_REGISTRY/sahil-maps:$IMAGE_TAG
 
         echo "Images tagged with $IMAGE_TAG have been built and pushed to ECR"
