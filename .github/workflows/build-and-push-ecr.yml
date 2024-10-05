@@ -1,5 +1,8 @@
 name: Docker image build and publish
 on:
+  push:
+    branches: [ migrate-to-aws ]
+    
   workflow_dispatch:
     inputs:
       path_to_dockerfile:
