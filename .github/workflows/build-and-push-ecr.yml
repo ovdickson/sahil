@@ -2,7 +2,7 @@ name: Docker image build and publish
 on:
   push:
     branches: [ migrate-to-aws ]
-    
+
   workflow_dispatch:
     inputs:
       path_to_dockerfile:
@@ -68,7 +68,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.ROLE_NAME }}
           role-session-name: github_action_session
-          aws-region: ${{ inputs.aws_region }}
+          aws-region: ${{ vars.REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
