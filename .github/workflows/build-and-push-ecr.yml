@@ -48,7 +48,7 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
         # Build and push sahil-website
-        docker build -t $ECR_REGISTRY/sahil-website:$IMAGE_TAG -f infra/docker/Dockerfile.website .
+        docker build -t $ECR_REGISTRY/sahil-website-test:$IMAGE_TAG -f ./infra/docker/Dockerfile.website .
         docker push $ECR_REGISTRY/sahil-website-test:$IMAGE_TAG
 
         # Build and push sahil-api
