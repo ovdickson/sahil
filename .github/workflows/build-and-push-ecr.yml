@@ -67,8 +67,9 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/sahil-deployment-role
-          aws-region: ${{ inputs.aws_region }}
+          role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.ROLE_NAME }}
+          role-session-name: github_action_session
+          aws-region: ${{ vars.REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -90,7 +91,6 @@ jobs:
         run: |
           set -eux
           terraform init -upgrade -reconfigure \
-            -backend-config='region=${{ inputs.aws_region }}' \
             -backend-config='bucket=${{ inputs.backend_s3_bucket }}' \
             -backend-config='key=docker-ecr/terraform-${{ env.ECR_REPO_NAME }}.tfstate' \
             -backend-config='dynamodb_table=${{ inputs.backend_dynamodb_table }}' \
