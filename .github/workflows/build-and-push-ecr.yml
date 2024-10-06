@@ -23,11 +23,11 @@ on:
         type: string
       backend_s3_bucket:
         description: Name of the S3bucket for Terraform backend
-        default: "sahil-terraform-state-bucket"
+        required: true
         type: string
       backend_iam_role:
         description: Name of the Terraform backend assumable IAM Role
-        default: "sahil-deployment-role"
+        required: true
         type: string
       github_iam_role:
         description: Name of the IAM Role for adding access to ECR repo
@@ -35,14 +35,15 @@ on:
         type: string
       aws_account_id:
         description: AWS Account ID
+        required: true
         type: string
       aws_region:
         description: Target AWS Region
-        default: "eu-west-1"
+        required: true
         type: string
       backend_dynamodb_table:
         description: DynamoDB table for State lock
-        default: "sahil-terraform-table-locks"
+        required: true
         type: string
 
 # concurrency required to avoid terraform lock contention during ECR provisioning
@@ -66,9 +67,8 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.ACCOUNT_ID }}:role/${{ vars.ROLE_NAME }}
-          role-session-name: github_action_session
-          aws-region: ${{ vars.REGION }}
+          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/sahil-deployment-role
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -90,14 +90,11 @@ jobs:
         run: |
           set -eux
           terraform init -upgrade -reconfigure \
-            -backend-config='skip_metadata_api_check=true' \
-            -backend-config='skip_region_validation=true' \
-            -backend-config='skip_credentials_validation=true' \
             -backend-config='region=${{ inputs.aws_region }}' \
             -backend-config='bucket=${{ inputs.backend_s3_bucket }}' \
             -backend-config='key=docker-ecr/terraform-${{ env.ECR_REPO_NAME }}.tfstate' \
             -backend-config='dynamodb_table=${{ inputs.backend_dynamodb_table }}' \
-            -backend-config='role_arn=arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.backend_iam_role }}'
+            -backend-config='assume_role_arn=arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.backend_iam_role }}'
         working-directory: infra/terraform
 
       - name: Create ECR repo [TF apply]
@@ -109,6 +106,7 @@ jobs:
             -var 'lifecycle_policy=${{ inputs.lifecycle_policy_file }}' \
             -var 'iam_role=arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.github_iam_role }}' \
             -var 'aws_account_id=${{ inputs.aws_account_id }}' \
+            -var 'aws_region=${{ inputs.aws_region }}' \
             -auto-approve
         working-directory: infra/terraform
 
