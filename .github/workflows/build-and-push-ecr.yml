@@ -99,7 +99,7 @@ jobs:
           terraform init  \
             -input=false \
             -backend-config='key=docker-ecr/terraform-${{ env.ECR_REPO_NAME }}.tfstate' \
-            -backend-config='assume_role.role_arn=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}'
+            -backend-config='role_arn=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}'
         working-directory: infra/terraform
 
       - name: Create ECR repo [TF apply]
