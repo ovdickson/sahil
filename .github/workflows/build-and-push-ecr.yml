@@ -96,7 +96,7 @@ jobs:
         shell: bash
         run: |
           set -eux
-          terraform init  \
+          terraform init -upgrade -reconfigure \
             -input=false \
             -backend-config="key=docker-ecr/terraform-${{ env.ECR_REPO_NAME }}.tfstate" \
             -backend-config="role_arn=arn:aws:iam::${{vars.ACCOUNT_ID}}:role/${{vars.BACKEND_IAM_ROLE}}"
