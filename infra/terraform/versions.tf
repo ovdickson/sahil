@@ -14,5 +14,8 @@ terraform {
     bucket         = "sahil-terraform-state-bucket" 
     dynamodb_table = "sahil-terraform-table-locks"     
     region         = "eu-west-1"
+    assume_role {
+    role_arn = "arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}"
+  }
   }
 }
