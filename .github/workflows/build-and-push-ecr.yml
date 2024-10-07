@@ -96,15 +96,10 @@ jobs:
         shell: bash
         run: |
           set -eux
-          terraform init -upgrade -reconfigure \
-            -backend-config='skip_metadata_api_check=true' \
-            -backend-config='skip_region_validation=true' \
-            -backend-config='skip_credentials_validation=true' \
-            -backend-config='region=${{ inputs.aws_region }}' \
-            -backend-config='bucket=${{ inputs.backend_s3_bucket }}' \
+          terraform init  \
+            -input=false \
             -backend-config='key=docker-ecr/terraform-${{ env.ECR_REPO_NAME }}.tfstate' \
-            -backend-config='dynamodb_table=${{ inputs.backend_dynamodb_table }}' \
-            -backend-config='role_arn=arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.backend_iam_role }}'
+            -backend-config='assume_role.role_arn=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}'
         working-directory: infra/terraform
 
       - name: Create ECR repo [TF apply]
@@ -114,9 +109,9 @@ jobs:
           terraform apply \
             -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
             -var 'lifecycle_policy=${{ inputs.lifecycle_policy_file }}' \
-            -var 'iam_role=arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.github_iam_role }}' \
-            -var 'aws_account_id=${{ inputs.aws_account_id }}' \
-            -var 'aws_region=${{ inputs.aws_region }}' \
+            -var 'iam_role=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}' \
+            -var 'aws_account_id=${{ vars.ACCOUNT_ID }}' \
+            -var 'aws_region=${{ vars.REGION }}' \
             -auto-approve
         working-directory: infra/terraform
 
@@ -124,7 +119,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
         with:
-          registries: ${{ inputs.aws_account_id }}
+          registries: ${{ vars.ACCOUNT_ID }}
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-publish

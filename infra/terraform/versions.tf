@@ -8,5 +8,11 @@ terraform {
     }
   }
 
-  backend "s3" {}
+  backend "s3" {
+    encrypt = true
+
+    bucket         = "sahil-terraform-state-bucket" 
+    dynamodb_table = "sahil-terraform-table-locks"     
+    region         = "eu-west-1"
+  }
 }
