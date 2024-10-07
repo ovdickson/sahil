@@ -68,7 +68,8 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/sahil-deployment-role
-          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: github_action_session
+          aws-region: ${{ vars.REGION }}
 
       - name: Get OIDC Token
         id: get_oidc_token
