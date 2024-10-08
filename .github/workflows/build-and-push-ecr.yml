@@ -96,25 +96,25 @@ jobs:
           # replace / with _
           echo "ECR_REPO_NAME=${repo//\//_}" >> $GITHUB_ENV
 
-          # echo "LIFECYCLE_POLICY=$(cat << EOF
-          # {
-          #   "rules": [
-          #     {
-          #       "rulePriority": 1,
-          #       "description": "Keep last 1 images",
-          #       "selection": {
-          #         "tagStatus": "tagged",
-          #         "tagPrefixList": [ "snapshot" ],
-          #         "countType": "imageCountMoreThan",
-          #         "countNumber": 1
-          #       },
-          #       "action": {
-          #         "type": "expire"
-          #       }
-          #     }
-          #   ]
-          # }
-          # EOF)" >> $GITHUB_ENV
+          echo "LIFECYCLE_POLICY=$(cat << EOF
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Keep last 1 images",
+                "selection": {
+                  "tagStatus": "tagged",
+                  "tagPrefixList": [ "snapshot" ],
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 1
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
+          EOF)" >> $GITHUB_ENV
 
       - name: TF init
         shell: bash
@@ -133,7 +133,7 @@ jobs:
           set -eux
           terraform plan \
           -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
-          -var 'lifecycle_policy=${{ inputs.lifecycle_policy_file }}' \
+          -var 'lifecycle_policy=${{ env.LIFECYCLE_POLICY }}' \
           -var 'iam_role=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}' \
           -var 'aws_account_id=${{ vars.ACCOUNT_ID }}' \
           -out terraform.plan
@@ -158,7 +158,7 @@ jobs:
           set -eux
           terraform apply \
             -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
-            -var 'lifecycle_policy=${{ inputs.lifecycle_policy_file }}' \
+            -var 'lifecycle_policy=${{ env.LIFECYCLE_POLICY }}' \
             -var 'iam_role=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}' \
             -var 'aws_account_id=${{ vars.ACCOUNT_ID }}' \
             -auto-approve
