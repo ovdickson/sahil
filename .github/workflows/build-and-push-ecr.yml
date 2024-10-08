@@ -134,7 +134,7 @@ jobs:
           set -eux
           terraform plan \
           -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
-          -var 'lifecycle_policy=$LIFECYCLE_POLICY" \
+          -var 'lifecycle_policy=$LIFECYCLE_POLICY' \
           -var 'iam_role=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}' \
           -var 'aws_account_id=${{ vars.ACCOUNT_ID }}' \
           -out terraform.plan
@@ -159,7 +159,7 @@ jobs:
           set -eux
           terraform apply \
             -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
-            -var 'lifecycle_policy=$LIFECYCLE_POLICY" \
+            -var 'lifecycle_policy=$LIFECYCLE_POLICY' \
             -var 'iam_role=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}' \
             -var 'aws_account_id=${{ vars.ACCOUNT_ID }}' \
             -auto-approve
