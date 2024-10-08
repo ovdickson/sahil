@@ -16,12 +16,25 @@ jobs:
           "rules": [
             {
               "rulePriority": 1,
-              "description": "Keep last 1 image",
+              "description": "Keep last 5 images for each service",
               "selection": {
                 "tagStatus": "tagged",
-                "tagPrefixList": [ "snapshot" ],
+                "tagPrefixList": [ "website", "client", "agent", "api" ],
                 "countType": "imageCountMoreThan",
-                "countNumber": 1
+                "countNumber": 5
+              },
+              "action": {
+                "type": "expire"
+              }
+            },
+            {
+              "rulePriority": 2,
+              "description": "Expire untagged images older than 14 days",
+              "selection": {
+                "tagStatus": "untagged",
+                "countType": "sinceImagePushed",
+                "countUnit": "days",
+                "countNumber": 14
               },
               "action": {
                 "type": "expire"
@@ -136,13 +149,19 @@ jobs:
           ECR_REPOSITORY: ${{ env.ECR_REPO_NAME }}
           DOCKER_BUILD_DIR: "."
           PATH_TO_DOCKERFILE: "./infra/docker/Dockerfile.website"
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
-          docker build -f $PATH_TO_DOCKERFILE $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.IMAGE_TAG }}"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          echo "IMAGE ${{ env.IMAGE_TAG }} is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
-          echo "image_tag=${{ env.IMAGE_TAG }}" 
-          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.IMAGE_TAG }}"
+          docker build -f ./infra/docker/Dockerfile.website $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:website-artifact-latest"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:website-artifact-latest"
+          
+          docker build -f ./infra/docker/Dockerfile.agent $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:agent-artifact-latest"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:agent-artifact-latest"
+        
+          docker build -f ./infra/docker/Dockerfile.api $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:api-artifact-latest"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:api-artifact-latest"
+
+          docker build -f ./infra/docker/Dockerfile.client $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:client-artifact-latest"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:client-artifact-latest"
+          
 
 
       
