@@ -139,7 +139,7 @@ jobs:
           registries: ${{ vars.ACCOUNT_ID }}
 
       - name: Set IMAGE_TAG
-        run: echo "IMAGE_TAG=website-artifact-latest" >> $GITHUB_ENV
+        run: echo "IMAGE_TAG=website-latest" >> $GITHUB_ENV
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-publish
@@ -150,17 +150,17 @@ jobs:
           DOCKER_BUILD_DIR: "."
           PATH_TO_DOCKERFILE: "./infra/docker/Dockerfile.website"
         run: |
-          docker build -f ./infra/docker/Dockerfile.website $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:website-artifact-latest"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:website-artifact-latest"
+          docker build -f ./infra/docker/Dockerfile.website $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:website-latest"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:website-latest"
           
-          docker build -f ./infra/docker/Dockerfile.agent $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:agent-artifact-latest"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:agent-artifact-latest"
+          docker build -f ./infra/docker/Dockerfile.agent $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:agent-latest"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:agent-latest"
         
-          docker build -f ./infra/docker/Dockerfile.api $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:api-artifact-latest"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:api-artifact-latest"
+          docker build -f ./infra/docker/Dockerfile.api $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:api-latest"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:api-latest"
 
-          docker build -f ./infra/docker/Dockerfile.client $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:client-artifact-latest"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:client-artifact-latest"
+          docker build -f ./infra/docker/Dockerfile.client $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:client-latest"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:client-latest"
           
 
 
