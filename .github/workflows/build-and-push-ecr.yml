@@ -111,7 +111,6 @@ jobs:
             -var 'lifecycle_policy=${{ inputs.lifecycle_policy_file }}' \
             -var 'iam_role=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}' \
             -var 'aws_account_id=${{ vars.ACCOUNT_ID }}' \
-            -var 'aws_region=${{ vars.REGION }}' \
             -auto-approve
         working-directory: infra/terraform
 
