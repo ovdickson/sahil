@@ -58,23 +58,24 @@ jobs:
     runs-on: ubuntu-latest
     env:
       LIFECYCLE_POLICY: |
+       
         {
           "rules": [
-              {
-                "rulePriority": 1,
-                "description": "Keep last 1 image",
-                "selection": {
-                  "tagStatus": "tagged",
-                  "tagPrefixList": [ "snapshot" ],
-                  "countType": "imageCountMoreThan",
-                  "countNumber": 1
-                },
-                "action": {
-                  "type": "expire"
-                }
+            {
+              "rulePriority": 1,
+              "description": "Keep last 1 image",
+              "selection": {
+                "tagStatus": "tagged",
+                "tagPrefixList": [ "snapshot" ],
+                "countType": "imageCountMoreThan",
+                "countNumber": 1
+              },
+              "action": {
+                "type": "expire"
               }
-            ]
-          }
+            }
+          ]
+        }
 
     permissions:
       id-token: write
@@ -134,7 +135,7 @@ jobs:
           set -eux
           terraform plan \
           -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
-          -var 'lifecycle_policy=$LIFECYCLE_POLICY' \
+          -var 'lifecycle_policy=${{ env.LIFECYCLE_POLICY }}' \
           -var 'iam_role=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}' \
           -var 'aws_account_id=${{ vars.ACCOUNT_ID }}' \
           -out terraform.plan
@@ -159,7 +160,7 @@ jobs:
           set -eux
           terraform apply \
             -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
-            -var 'lifecycle_policy=$LIFECYCLE_POLICY' \
+            -var 'lifecycle_policy=${{ env.LIFECYCLE_POLICY }}' \
             -var 'iam_role=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}' \
             -var 'aws_account_id=${{ vars.ACCOUNT_ID }}' \
             -auto-approve
