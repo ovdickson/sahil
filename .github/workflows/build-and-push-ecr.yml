@@ -96,12 +96,13 @@ jobs:
           # replace / with _
           echo "ECR_REPO_NAME=${repo//\//_}" >> $GITHUB_ENV
 
-          echo "LIFECYCLE_POLICY=$(cat << EOF
+          echo "LIFECYCLE_POLICY<<EOF" >> $GITHUB_ENV
+          cat << EOF >> $GITHUB_ENV
           {
             "rules": [
               {
                 "rulePriority": 1,
-                "description": "Keep last 1 images",
+                "description": "Keep last 1 image",
                 "selection": {
                   "tagStatus": "tagged",
                   "tagPrefixList": [ "snapshot" ],
@@ -114,7 +115,8 @@ jobs:
               }
             ]
           }
-          EOF)" >> $GITHUB_ENV
+          EOF
+          echo "EOF" >> $GITHUB_ENV
 
       - name: TF init
         shell: bash
