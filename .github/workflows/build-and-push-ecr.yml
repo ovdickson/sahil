@@ -3,48 +3,52 @@ on:
   push:
     branches: [ migrate-to-aws ]
 
-    workflow_dispatch:
-      inputs:
-        path_to_dockerfile:
-          description: Path to the dockerfile (default = 'Dockerfile')
-          default: "infra/docker/Dockerfile.website"
-          type: string
-        docker_build_dir:
-          description: Docker build directory (default = '.')
-          default: "infra/docker"
-          type: string
-        image_tag:
-          description: Tag to apply to images.
-          type: string
-          default: snapshot-artifact
-        lifecycle_policy_file:
-          description: Path to the lifecycle policy JSON file (default = 'policy.json')
-          default: "infra/policy.json"
-          type: string
-        backend_s3_bucket:
-          description: Name of the S3bucket for Terraform backend
-          default: "sahil-terraform-table-bucket"
-          type: string
-        backend_iam_role:
-          description: Name of the Terraform backend assumable IAM Role
-          default: "workload-assumable-role"
-          type: string
-        github_iam_role:
-          description: Name of the IAM Role for adding access to ECR repo
-          default: "sahil-deployment-role "
-          type: string
-        aws_account_id:
-          description: AWS Account ID
-          default: "060795911441"
-          type: string
-        aws_region:
-          description: Target AWS Region
-          default: "eu-west-1"
-          type: string
-        backend_dynamodb_table:
-          description: DynamoDB table for State lock
-          default: "sahil-terraform-table-locks"
-          type: string
+  workflow_dispatch:
+    inputs:
+      path_to_dockerfile:
+        description: Path to the dockerfile (default = 'Dockerfile')
+        default: "infra/docker/Dockerfile.website"
+        type: string
+      docker_build_dir:
+        description: Docker build directory (default = '.')
+        default: "infra/docker"
+        type: string
+      image_tag:
+        description: Tag to apply to images.
+        type: string
+        default: snapshot-artifact
+      lifecycle_policy_file:
+        description: Path to the lifecycle policy JSON file (default = 'policy.json')
+        required: true
+        default: "infra/policy.json"
+        type: string
+      backend_s3_bucket:
+        description: Name of the S3bucket for Terraform backend
+        required: true
+        default: "sahil-terraform-table-bucket"
+        type: string
+      backend_iam_role:
+        description: Name of the Terraform backend assumable IAM Role
+        default: "workload-assumable-role"
+        type: string
+      github_iam_role:
+        description: Name of the IAM Role for adding access to ECR repo
+        default: "sahil-deployment-role "
+        type: string
+      aws_account_id:
+        description: AWS Account ID
+        required: true
+        default: "060795911441"
+        type: string
+      aws_region:
+        description: Target AWS Region
+        default: "eu-west-1"
+        type: string
+      backend_dynamodb_table:
+        description: DynamoDB table for State lock
+        required: true
+        default: "sahil-terraform-table-locks"
+        type: string
 
 # concurrency required to avoid terraform lock contention during ECR provisioning
 concurrency: ci-${{ github.repository }}-docker-pipeline
