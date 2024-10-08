@@ -185,7 +185,7 @@ jobs:
           PATH_TO_DOCKERFILE: "infra/docker/Dockerfile.website"
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
-          docker build "${{ inputs.docker_build_dir }}" -f "${{ inputs.path_to_dockerfile }}" -t "$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.IMAGE_TAG }}"
+          docker build -f $PATH_TO_DOCKERFILE $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.IMAGE_TAG }}"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           echo "IMAGE ${{ env.IMAGE_TAG }} is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
           echo "image_tag=${{ env.IMAGE_TAG }}" 
