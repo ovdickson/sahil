@@ -182,7 +182,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPO_NAME }}
           DOCKER_BUILD_DIR: "."
-          PATH_TO_DOCKERFILE: "./Dockerfile.website"
+          PATH_TO_DOCKERFILE: "./infra/docker/Dockerfile.website"
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
           docker build -f $PATH_TO_DOCKERFILE $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.IMAGE_TAG }}"
