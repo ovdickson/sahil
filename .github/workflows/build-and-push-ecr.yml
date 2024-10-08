@@ -172,21 +172,35 @@ jobs:
         with:
           registries: ${{ vars.ACCOUNT_ID }}
 
-      - name: Set IMAGE_TAG
-        run: echo "IMAGE_TAG=${GITHUB_SHA::7}-${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
-
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-publish
-        shell: bash
+      - name: Build, tag, and push images to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPO_NAME }}
-          DOCKER_BUILD_DIR: "."
-          PATH_TO_DOCKERFILE: "./infra/docker/Dockerfile.website"
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+          DOCKER_BUILD_DIR: "."  # Use the root directory as the build context
         run: |
-          docker build -f $PATH_TO_DOCKERFILE $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.IMAGE_TAG }}"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          echo "IMAGE ${{ env.IMAGE_TAG }} is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
-          echo "image_tag=${{ env.IMAGE_TAG }}" 
-          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:${{ env.IMAGE_TAG }}"
+          # Read the list of Dockerfiles
+          DOCKERFILES="${{ steps.find-dockerfiles.outputs.dockerfiles }}"
+          
+          # Iterate over each Dockerfile
+          while IFS= read -r dockerfile; do
+            # Extract the service name from the Dockerfile name (e.g., Dockerfile.website -> website)
+            service_name=$(basename "$dockerfile" | cut -d. -f2)
+            
+            # Set a unique IMAGE_TAG for this service
+            IMAGE_TAG="${service_name}-artifact-v1"
+            
+            echo "Building and pushing $service_name"
+            
+            # Build the Docker image
+            docker build -f "$dockerfile" -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $DOCKER_BUILD_DIR
+            
+            # Push the image to ECR
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            
+            echo "Image $IMAGE_TAG pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
+            
+            # Output the image tag for use in subsequent steps if needed
+            echo "${service_name}_image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          done <<< "$DOCKERFILES"
+
+      
