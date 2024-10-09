@@ -15,13 +15,15 @@ RUN turbo prune api --docker
 FROM base AS installer
 RUN apk add --no-cache libc6-compat
 RUN apk update
+RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
 # First install dependencies (as they change less often)
 COPY .gitignore .gitignore
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/yarn.lock ./yarn.lock
-RUN yarn install --network-timeout 100000
+RUN yarn install --network-timeout 100000 --network-concurrency 1
+
 
 # Build the project and its dependencies
 COPY --from=builder /app/out/full/ .
