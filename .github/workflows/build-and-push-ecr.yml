@@ -150,11 +150,11 @@ jobs:
           DOCKER_BUILD_DIR: "."
           PATH_TO_DOCKERFILE: "./infra/docker/Dockerfile.website"
         run: |
-          docker build -f ./infra/docker/Dockerfile.website $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:website-latest"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:website-latest"
+          # docker build -f ./infra/docker/Dockerfile.website $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:website-latest"
+          # docker push "$ECR_REGISTRY/$ECR_REPOSITORY:website-latest"
           
-          docker build -f ./infra/docker/Dockerfile.agent $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:agent-latest"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:agent-latest"
+          # docker build -f ./infra/docker/Dockerfile.agent $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:agent-latest"
+          # docker push "$ECR_REGISTRY/$ECR_REPOSITORY:agent-latest"
         
           docker build -f ./infra/docker/Dockerfile.api $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:api-latest"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:api-latest"
