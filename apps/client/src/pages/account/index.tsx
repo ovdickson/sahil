@@ -1,7 +1,7 @@
 import {
   BusinessProfileOverview,
   BusinessOrderHistory,
-} from "@sahil/features/Businesses";
+} from "@sahil/features/businesses";
 // import { useGetAccountBalance, useGetMomoAccountInfo } from "@/hooks/accounts";
 import { useFetchBusinessByPK } from "@/hooks/businesses";
 import { Card, JoinGrid } from "ui";

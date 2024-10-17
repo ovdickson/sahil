@@ -120,11 +120,23 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1  
 
-      - name: Create ECR repo [TF apply]
+      # - name: Create ECR repo [TF apply]
+      #   shell: bash
+      #   run: |
+      #     set -eux
+      #     terraform apply \
+      #       -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
+      #       -var 'lifecycle_policy=${{ env.LIFECYCLE_POLICY }}' \
+      #       -var 'iam_role=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}' \
+      #       -var 'aws_account_id=${{ vars.ACCOUNT_ID }}' \
+      #       -auto-approve
+      #   working-directory: infra/terraform
+
+      - name: Destroy ECR repo [TF destroy]
         shell: bash
         run: |
           set -eux
-          terraform apply \
+          terraform destroy \
             -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
             -var 'lifecycle_policy=${{ env.LIFECYCLE_POLICY }}' \
             -var 'iam_role=arn:aws:iam::${vars.ACCOUNT_ID}:role/${vars.ROLE_NAME}' \
@@ -156,11 +168,11 @@ jobs:
           # docker build -f ./infra/docker/Dockerfile.agent $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:agent-latest"
           # docker push "$ECR_REGISTRY/$ECR_REPOSITORY:agent-latest"
         
-          docker build -f ./infra/docker/Dockerfile.api $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:api-latest"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:api-latest"
+          # docker build -f ./infra/docker/Dockerfile.api $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:api-latest"
+          # docker push "$ECR_REGISTRY/$ECR_REPOSITORY:api-latest"
 
-          docker build -f ./infra/docker/Dockerfile.client $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:client-latest"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:client-latest"
+          # docker build -f ./infra/docker/Dockerfile.client $DOCKER_BUILD_DIR  -t "$ECR_REGISTRY/$ECR_REPOSITORY:client-latest"
+          # docker push "$ECR_REGISTRY/$ECR_REPOSITORY:client-latest"
           
 
 
